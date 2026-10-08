@@ -120,3 +120,19 @@ main { overflow: hidden; }
   .toasts { left: 12px; right: 12px; bottom: 12px; }
   .toast { max-width: none; }
 }
+
+/* script inputs window (like TradingView's Settings → Inputs) */
+.inputs-dialog { width: 520px; }
+.inputs-dialog .scope { display: flex; gap: 16px; margin: 10px 0 4px; }
+.inputs-dialog .scope label { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--text); font-size: 13px; cursor: pointer; }
+.inputs-dialog .scope input { width: auto; }
+#inputsBody { max-height: 58vh; overflow: auto; margin-top: 8px; padding-right: 4px; }
+.in-group { font: 600 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 14px 0 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+.in-group:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.in-row { display: grid; grid-template-columns: 1fr 150px 14px; gap: 10px; align-items: center; padding: 4px 0; }
+.in-row > span { font-size: 13px; }
+.in-row input[type=number], .in-row select { padding: 5px 8px; }
+.in-row input[type=checkbox] { width: 16px; height: 16px; justify-self: start; accent-color: var(--accent); }
+.in-row .dot-mod { width: 7px; height: 7px; border-radius: 50%; background: transparent; }
+.in-row .dot-mod.on { background: var(--warn); }
+@media (max-width: 600px) { .in-row { grid-template-columns: 1fr 110px 10px; } }

@@ -15,6 +15,7 @@
       <span>Pine</span>
       <select id="scriptPick"></select>
     </label>
+    <button class="ghost small" id="inputsBtn" title="Script inputs (like TradingView's Settings → Inputs)">⚙ Inputs</button>
     <div class="legend" id="legend"></div>
     <div class="spacer"></div>
     <div class="status"><span class="dot" id="dot"></span><span id="statusText">connecting</span></div>
@@ -102,7 +103,7 @@
     <label for="aName">Name</label>
     <input id="aName" required maxlength="60">
     <label for="aSymbols">Pairs <span class="muted" id="aCount"></span></label>
-    <textarea id="aSymbols" rows="4" class="mono" placeholder="BINANCE:BTCUSDT, OANDA:EUR_USD, XAUUSD…"></textarea>
+    <textarea id="aSymbols" rows="4" class="mono" placeholder="BTCUSDT, EURUSD, XAUUSD, NAS100…"></textarea>
     <div class="row wrap" style="margin-top:6px">
       <button type="button" class="small" id="aUseChart">+ Chart symbol</button>
       <button type="button" class="small" id="aUseWatch">+ My watchlist</button>
@@ -134,12 +135,46 @@
   </form>
 </div>
 
+<div class="modal" id="inputsModal">
+  <form class="dialog inputs-dialog" id="inputsForm">
+    <div class="row between"><h3 id="inputsTitle">Inputs</h3><span class="muted small" id="inputsCount"></span></div>
+    <div class="scope">
+      <label><input type="radio" name="scope" value="pair" checked> <span id="scopePairLabel">This pair only</span></label>
+      <label><input type="radio" name="scope" value="*"> All pairs</label>
+    </div>
+    <div class="muted small" id="inputsHint"></div>
+    <div id="inputsBody"></div>
+    <div class="err-text" id="inputsError"></div>
+    <div class="actions">
+      <button type="button" class="ghost danger" id="inputsReset" style="margin-right:auto">Reset</button>
+      <button type="button" class="ghost" id="inputsCancel">Cancel</button>
+      <button type="submit" class="primary" id="inputsSave">OK</button>
+    </div>
+  </form>
+</div>
+
 <div class="toasts" id="toasts"></div>
 <script src="https://cdn.jsdelivr.net/npm/klinecharts@9.8.12/dist/umd/klinecharts.min.js"></script>
 <script>
   // Capture the chart instance KLineChart Pro creates, so we can draw Pine signals on it.
   window.__charts = [];
-  (function () { const init = klinecharts.init; klinecharts.init = function () { const c = init.apply(this, arguments); window.__charts.push(c); return c; }; })();
+  (function () {
+    const init = klinecharts.init;
+    klinecharts.init = function () {
+      const c = init.apply(this, arguments);
+      window.__charts.push(c);
+      // The gear / close icons of our Pine indicator open OUR inputs window instead of the library's.
+      const sub = c.subscribeAction.bind(c);
+      c.subscribeAction = function (type, cb) {
+        if (type !== klinecharts.ActionType.OnTooltipIconClick) return sub(type, cb);
+        return sub(type, function (d) {
+          if (d && d.indicatorName === 'PINE' && (d.iconId === 'setting' || d.iconId === 'close')) { if (window.__onPineIcon) window.__onPineIcon(d); return; }
+          return cb(d);
+        });
+      };
+      return c;
+    };
+  })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@klinecharts/pro@0.1.1/dist/klinecharts-pro.umd.js"></script>
 <script src="/app.js"></script>
