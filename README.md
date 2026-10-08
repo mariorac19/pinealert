@@ -1,10 +1,24 @@
 # PineAlert
 
-Your own live chart + Pine Script® alerts sent to Telegram, running 24/7 on Render's free plan.
+Your own TradingView-style charts with Pine Script® alerts sent to Telegram, running 24/7 on Render's free plan.
 
-- Test strategy included (`prev-candle-test.pine`): BTCUSDT 1m, candle closes red → BUY, green → SELL.
-- Login password: Render → pinealert → Environment → `APP_PASSWORD`.
-- Telegram: set `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` in Render → Environment (kept across restarts).
-- Add your own script: save it in the app's Scripts tab, or add a `.pine` file to this repository.
+- **Markets:** every Binance crypto pair, plus forex, gold/silver, indices and oil through a free OANDA practice account.
+- **Chart:** drawing tools (trend lines, Fibonacci, channels, shapes, waves), 20+ indicators, timeframes 1m–1W, scroll back through history, and your Pine script's signals and lines on top.
+- **Watchlist alerts:** run one Pine script on up to ~100 pairs. When many signals fire at once they arrive as one Telegram summary.
 
-Licences: PineTS (AGPL-3.0), Lightweight Charts™ (Apache-2.0, © TradingView, Inc.).
+## Settings (Render → pinealert → Environment)
+
+| Key | What it is |
+|---|---|
+| `APP_PASSWORD` | Login password for the site |
+| `TELEGRAM_TOKEN`, `TELEGRAM_CHAT_ID` | Your Telegram bot and chat |
+| `OANDA_TOKEN` | Personal access token of a free OANDA *practice* account (forex/metals/indices) |
+| `GITHUB_TOKEN`, `GITHUB_DATA_REPO` | Saves alerts, watchlist and your scripts to a **private** repo so restarts lose nothing |
+
+## Your Pine script
+Add one line so alerts can read your signals:
+```pine
+plot(buy ? 1 : sell ? -1 : 0, "TVX_SIGNAL", display = display.data_window)
+```
+
+Licences: PineTS (AGPL-3.0), KLineChart / KLineChart Pro (Apache-2.0).

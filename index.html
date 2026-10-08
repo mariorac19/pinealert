@@ -4,35 +4,50 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PineAlert</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@klinecharts/pro@0.1.1/dist/klinecharts-pro.css">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="app">
   <header>
     <div class="brand"><span class="logo">▲</span> PineAlert</div>
-    <input class="sym" id="symbol" value="BTCUSDT" spellcheck="false" title="Binance symbol, e.g. BTCUSDT, ETHUSDT">
-    <div class="tfs" id="tfs"></div>
-    <select class="script-pick" id="scriptPick" title="Script shown on the chart"></select>
-    <div class="price" id="price">—</div>
+    <label class="pine-pick" title="Run one of your Pine scripts on the chart">
+      <span>Pine</span>
+      <select id="scriptPick"></select>
+    </label>
+    <div class="legend" id="legend"></div>
+    <div class="spacer"></div>
     <div class="status"><span class="dot" id="dot"></span><span id="statusText">connecting</span></div>
     <button class="primary" id="newAlert">⏰ Alert</button>
   </header>
 
   <main>
     <div id="chart"></div>
-    <div class="legend" id="legend"></div>
     <div class="chart-msg" id="chartMsg"></div>
   </main>
 
   <aside>
     <div class="tabs">
-      <button data-tab="alerts" class="on">Alerts</button>
+      <button data-tab="watch" class="on">Watchlist</button>
+      <button data-tab="alerts">Alerts</button>
       <button data-tab="log">Log</button>
       <button data-tab="scripts">Scripts</button>
-      <button data-tab="settings">Settings</button>
+      <button data-tab="settings">⚙</button>
     </div>
 
-    <section class="pane on" id="tab-alerts">
+    <section class="pane on" id="tab-watch">
+      <div class="search-wrap">
+        <input id="wlSearch" placeholder="Add symbol: BTC, EURUSD, gold, NAS100…" autocomplete="off" spellcheck="false">
+        <div class="dropdown" id="wlDrop"></div>
+      </div>
+      <div class="wl-head"><span>Symbol</span><span>Last</span><span>Chg%</span></div>
+      <div id="wlList"></div>
+      <div class="row" style="margin-top:10px">
+        <select id="wlPreset"><option value="">Add a ready-made list…</option></select>
+      </div>
+    </section>
+
+    <section class="pane" id="tab-alerts">
       <div id="alertList"></div>
     </section>
 
@@ -51,29 +66,28 @@
       <label for="scriptSrc">Pine Script® source (v5 / v6)</label>
       <textarea id="scriptSrc" rows="16" spellcheck="false"></textarea>
       <div class="row" style="margin-top:8px">
-        <button id="scriptCheck">Check on chart data</button>
+        <button id="scriptCheck">Check on chart</button>
         <button class="primary" id="scriptSave">Save</button>
         <button class="ghost danger" id="scriptDelete" style="margin-left:auto">Delete</button>
       </div>
       <div id="checkResult"></div>
-      <p class="muted small">Tip: add <span class="mono">plot(buy ? 1 : sell ? -1 : 0, "TVX_SIGNAL", display = display.data_window)</span> — alerts read this plot.</p>
+      <p class="muted small">Alerts read a signal plot: <span class="mono">plot(buy ? 1 : sell ? -1 : 0, "TVX_SIGNAL", display = display.data_window)</span></p>
     </section>
 
     <section class="pane" id="tab-settings">
+      <div class="card" id="storageCard"></div>
       <div class="card">
         <b>Telegram</b>
         <div class="muted small" id="tgState"></div>
-        <label for="tgToken">Bot token (from @BotFather)</label>
-        <input id="tgToken" class="mono" placeholder="123456789:AA..." autocomplete="off">
         <label for="tgChat">Chat ID</label>
         <div class="row"><input id="tgChat" class="mono" placeholder="123456789"><button id="tgFind">Find</button></div>
-        <p class="muted small">Send any message to your bot first, then click Find.</p>
-        <div class="row"><button class="primary" id="tgSave">Save</button><button id="tgTest">Send test</button></div>
+        <div class="row" style="margin-top:8px"><button class="primary" id="tgSave">Save</button><button id="tgTest">Send test</button></div>
+        <p class="muted small">The bot token is set in Render → Environment → TELEGRAM_TOKEN.</p>
       </div>
       <div class="card">
         <b>Message format</b>
         <textarea id="template" rows="5" style="margin-top:8px"></textarea>
-        <p class="muted small">Variables: {{emoji}} {{label}} {{symbol}} {{interval}} {{close}} {{open}} {{high}} {{low}} {{value}} {{script}} {{alert}} {{candleTime}} {{sentAt}}</p>
+        <p class="muted small">Variables: {{emoji}} {{label}} {{name}} {{symbol}} {{exchange}} {{interval}} {{close}} {{open}} {{high}} {{low}} {{value}} {{script}} {{alert}} {{candleTime}} {{sentAt}}. When more than 3 pairs fire together they are sent as one summary message.</p>
         <button id="templateSave">Save format</button>
       </div>
       <div class="card small muted" id="serverInfo"></div>
@@ -84,15 +98,21 @@
 <div class="modal" id="alertModal">
   <form class="dialog" id="alertForm">
     <h3 id="alertTitle">Create alert</h3>
-    <div class="muted small">Checked on every closed candle, 24/7 on the server.</div>
+    <div class="muted small">Runs your Pine script on every closed candle of every pair, 24/7 on the server.</div>
     <label for="aName">Name</label>
     <input id="aName" required maxlength="60">
-    <div class="grid2">
-      <div><label for="aSymbol">Symbol</label><input id="aSymbol" class="mono" required></div>
-      <div><label for="aInterval">Timeframe</label><select id="aInterval"></select></div>
+    <label for="aSymbols">Pairs <span class="muted" id="aCount"></span></label>
+    <textarea id="aSymbols" rows="4" class="mono" placeholder="BINANCE:BTCUSDT, OANDA:EUR_USD, XAUUSD…"></textarea>
+    <div class="row wrap" style="margin-top:6px">
+      <button type="button" class="small" id="aUseChart">+ Chart symbol</button>
+      <button type="button" class="small" id="aUseWatch">+ My watchlist</button>
+      <select id="aPreset" class="small-select"><option value="">+ Ready-made list…</option></select>
+      <button type="button" class="small ghost" id="aClear">Clear</button>
     </div>
-    <label for="aScript">Script</label>
-    <select id="aScript" required></select>
+    <div class="grid2">
+      <div><label for="aInterval">Timeframe</label><select id="aInterval"></select></div>
+      <div><label for="aScript">Script</label><select id="aScript" required></select></div>
+    </div>
     <div class="grid2">
       <div><label for="aPlot">Signal plot</label><input id="aPlot" class="mono" value="TVX_SIGNAL"></div>
       <div><label for="aTrigger">Trigger</label>
@@ -105,16 +125,23 @@
     <label for="aLabels">Labels</label>
     <input id="aLabels" class="mono" value="1=BUY,-1=SELL">
     <label for="aTemplate">Message (empty = default format)</label>
-    <textarea id="aTemplate" rows="3"></textarea>
+    <textarea id="aTemplate" rows="2"></textarea>
+    <div class="err-text" id="aError"></div>
     <div class="actions">
       <button type="button" class="ghost" id="alertCancel">Cancel</button>
-      <button type="submit" class="primary">Save alert</button>
+      <button type="submit" class="primary" id="aSave">Save alert</button>
     </div>
   </form>
 </div>
 
 <div class="toasts" id="toasts"></div>
-<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@5.2.1/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/klinecharts@9.8.12/dist/umd/klinecharts.min.js"></script>
+<script>
+  // Capture the chart instance KLineChart Pro creates, so we can draw Pine signals on it.
+  window.__charts = [];
+  (function () { const init = klinecharts.init; klinecharts.init = function () { const c = init.apply(this, arguments); window.__charts.push(c); return c; }; })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@klinecharts/pro@0.1.1/dist/klinecharts-pro.umd.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

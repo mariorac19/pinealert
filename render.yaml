@@ -1,4 +1,4 @@
-# One-click deploy on Render: free plan, Frankfurt (Binance data works there).
+# Render settings for PineAlert (free plan, Frankfurt so Binance data works).
 services:
   - type: web
     name: pinealert
@@ -16,8 +16,14 @@ services:
       - key: DATA_DIR
         value: "data"
       - key: APP_PASSWORD
-        generateValue: true
+        sync: false
       - key: TELEGRAM_TOKEN
         sync: false
       - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: OANDA_TOKEN        # free OANDA practice account -> forex, gold, indices
+        sync: false
+      - key: GITHUB_TOKEN       # saves alerts/scripts to a private repo (survives restarts)
+        sync: false
+      - key: GITHUB_DATA_REPO   # e.g. mariorac19/pinealert-data
         sync: false
