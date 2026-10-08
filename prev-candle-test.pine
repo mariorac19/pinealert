@@ -1,0 +1,16 @@
+//@version=6
+indicator("Prev Candle Color Test", overlay = true)
+
+// TEST STRATEGY (BTCUSDT 1m)
+// The alert is checked the moment a candle CLOSES.
+// That candle is the "previous candle" for the trade you open next:
+//   it closed red   (close < open) -> BUY
+//   it closed green (close > open) -> SELL
+closedRed   = close < open
+closedGreen = close > open
+
+plotshape(closedRed,   "Buy",  shape.triangleup,   location.belowbar, color.green)
+plotshape(closedGreen, "Sell", shape.triangledown, location.abovebar, color.red)
+
+// The platform reads this plot: 1 = BUY, -1 = SELL, 0 = nothing
+plot(closedRed ? 1 : closedGreen ? -1 : 0, "TVX_SIGNAL", display = display.data_window)

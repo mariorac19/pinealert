@@ -1,0 +1,11 @@
+{
+  "name": "pinealert",
+  "version": "1.0.0",
+  "description": "My own chart + Pine Script alerts to Telegram",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": { "start": "node server.mjs" },
+  "engines": { "node": ">=22" },
+  "dependencies": { "pinets": "0.11.0" },
+  "license": "AGPL-3.0-only"
+}

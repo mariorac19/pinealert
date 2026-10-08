@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PineAlert</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="logo">▲</span> PineAlert</div>
+    <input class="sym" id="symbol" value="BTCUSDT" spellcheck="false" title="Binance symbol, e.g. BTCUSDT, ETHUSDT">
+    <div class="tfs" id="tfs"></div>
+    <select class="script-pick" id="scriptPick" title="Script shown on the chart"></select>
+    <div class="price" id="price">—</div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">connecting</span></div>
+    <button class="primary" id="newAlert">⏰ Alert</button>
+  </header>
+
+  <main>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+    <div class="chart-msg" id="chartMsg"></div>
+  </main>
+
+  <aside>
+    <div class="tabs">
+      <button data-tab="alerts" class="on">Alerts</button>
+      <button data-tab="log">Log</button>
+      <button data-tab="scripts">Scripts</button>
+      <button data-tab="settings">Settings</button>
+    </div>
+
+    <section class="pane on" id="tab-alerts">
+      <div id="alertList"></div>
+    </section>
+
+    <section class="pane" id="tab-log">
+      <div class="row between" style="margin-bottom:6px"><b>Signals sent</b><button class="ghost small" id="clearLog">Clear</button></div>
+      <div id="logList"></div>
+    </section>
+
+    <section class="pane" id="tab-scripts">
+      <div class="row" style="margin-bottom:8px">
+        <select id="scriptEdit"></select>
+        <button id="scriptNew" title="New script">＋</button>
+      </div>
+      <label for="scriptId">File name</label>
+      <input id="scriptId" class="mono" placeholder="my-strategy">
+      <label for="scriptSrc">Pine Script® source (v5 / v6)</label>
+      <textarea id="scriptSrc" rows="16" spellcheck="false"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="scriptCheck">Check on chart data</button>
+        <button class="primary" id="scriptSave">Save</button>
+        <button class="ghost danger" id="scriptDelete" style="margin-left:auto">Delete</button>
+      </div>
+      <div id="checkResult"></div>
+      <p class="muted small">Tip: add <span class="mono">plot(buy ? 1 : sell ? -1 : 0, "TVX_SIGNAL", display = display.data_window)</span> — alerts read this plot.</p>
+    </section>
+
+    <section class="pane" id="tab-settings">
+      <div class="card">
+        <b>Telegram</b>
+        <div class="muted small" id="tgState"></div>
+        <label for="tgToken">Bot token (from @BotFather)</label>
+        <input id="tgToken" class="mono" placeholder="123456789:AA..." autocomplete="off">
+        <label for="tgChat">Chat ID</label>
+        <div class="row"><input id="tgChat" class="mono" placeholder="123456789"><button id="tgFind">Find</button></div>
+        <p class="muted small">Send any message to your bot first, then click Find.</p>
+        <div class="row"><button class="primary" id="tgSave">Save</button><button id="tgTest">Send test</button></div>
+      </div>
+      <div class="card">
+        <b>Message format</b>
+        <textarea id="template" rows="5" style="margin-top:8px"></textarea>
+        <p class="muted small">Variables: {{emoji}} {{label}} {{symbol}} {{interval}} {{close}} {{open}} {{high}} {{low}} {{value}} {{script}} {{alert}} {{candleTime}} {{sentAt}}</p>
+        <button id="templateSave">Save format</button>
+      </div>
+      <div class="card small muted" id="serverInfo"></div>
+    </section>
+  </aside>
+</div>
+
+<div class="modal" id="alertModal">
+  <form class="dialog" id="alertForm">
+    <h3 id="alertTitle">Create alert</h3>
+    <div class="muted small">Checked on every closed candle, 24/7 on the server.</div>
+    <label for="aName">Name</label>
+    <input id="aName" required maxlength="60">
+    <div class="grid2">
+      <div><label for="aSymbol">Symbol</label><input id="aSymbol" class="mono" required></div>
+      <div><label for="aInterval">Timeframe</label><select id="aInterval"></select></div>
+    </div>
+    <label for="aScript">Script</label>
+    <select id="aScript" required></select>
+    <div class="grid2">
+      <div><label for="aPlot">Signal plot</label><input id="aPlot" class="mono" value="TVX_SIGNAL"></div>
+      <div><label for="aTrigger">Trigger</label>
+        <select id="aTrigger">
+          <option value="signal">+ BUY / − SELL</option>
+          <option value="nonzero">Any non-zero</option>
+          <option value="change">Value changes</option>
+        </select></div>
+    </div>
+    <label for="aLabels">Labels</label>
+    <input id="aLabels" class="mono" value="1=BUY,-1=SELL">
+    <label for="aTemplate">Message (empty = default format)</label>
+    <textarea id="aTemplate" rows="3"></textarea>
+    <div class="actions">
+      <button type="button" class="ghost" id="alertCancel">Cancel</button>
+      <button type="submit" class="primary">Save alert</button>
+    </div>
+  </form>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@5.2.1/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

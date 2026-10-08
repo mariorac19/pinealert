@@ -1,0 +1,23 @@
+# One-click deploy on Render: free plan, Frankfurt (Binance data works there).
+services:
+  - type: web
+    name: pinealert
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: node server.mjs
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: SCRIPTS_DIR
+        value: "."
+      - key: DATA_DIR
+        value: "data"
+      - key: APP_PASSWORD
+        generateValue: true
+      - key: TELEGRAM_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
