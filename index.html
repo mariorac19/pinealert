@@ -77,6 +77,33 @@
 
     <section class="pane" id="tab-settings">
       <div class="card" id="storageCard"></div>
+      <div class="card" id="ctCard"></div>
+      <div class="card">
+        <div class="row between"><b>MT5 auto-trading</b><label class="switch" title="On / off"><input type="checkbox" id="mt5Enabled"><span></span></label></div>
+        <div class="small muted" id="mt5State" style="margin-top:4px"></div>
+        <p class="small muted">Signals of alerts with <b>MT5</b> ticked are executed in your MT5 account by the PineAlert EA, immediately at the market price (even if it moved since the signal).</p>
+        <div class="grid2">
+          <div><label for="mt5Lots">Lots per trade</label><input id="mt5Lots" type="number" min="0.01" step="0.01"></div>
+          <div><label for="mt5Tp">Take-profit (× stop, 0 = none)</label><input id="mt5Tp" type="number" min="0" step="0.5"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="mt5Sl"> Stop-loss at the ROUGE (invalidation) level</label>
+        <label class="check"><input type="checkbox" id="mt5Opp"> A new signal closes the opposite trade</label>
+        <label class="check"><input type="checkbox" id="mt5Second"> Also trade SECOND LONG / SHORT signals</label>
+        <label class="check"><input type="checkbox" id="mt5Notify"> Telegram message after each trade</label>
+        <label for="mt5Age">Skip signals older than (seconds)</label><input id="mt5Age" type="number" min="10" max="3600">
+        <div class="row wrap" style="margin-top:8px"><button class="primary" id="mt5Save">Save</button><button id="mt5AllOn">MT5 on for all alerts</button><button class="ghost" id="mt5AllOff">Off for all</button></div>
+        <label>Bridge key (paste it in the EA)</label>
+        <div class="row"><span class="mono small key" id="mt5Key"></span><button class="small" id="mt5CopyKey">Copy</button><button class="small ghost" id="mt5NewKey">New</button></div>
+        <a class="btn" href="/api/bridge/PineAlertBridge.mq5" style="margin-top:8px" download>⬇ Download the MT5 EA</a>
+        <details style="margin-top:8px"><summary class="small">How to install the EA</summary><ol class="small muted">
+          <li>MT5 → Tools → Options → Expert Advisors: tick <i>Allow algorithmic trading</i> and <i>Allow WebRequest for listed URL</i>, add <span class="mono">https://pinealert.onrender.com</span>.</li>
+          <li>File → Open Data Folder → MQL5 → Experts: put <span class="mono">PineAlertBridge.mq5</span> there.</li>
+          <li>Open it in MetaEditor (F4) and press Compile (F7).</li>
+          <li>Drag the EA onto any one chart, tick <i>Allow Algo Trading</i>, OK. The key is already filled in.</li>
+          <li>Keep MT5 open (PC or VPS) — the EA checks for signals every second.</li></ol></details>
+        <label>Recent orders</label>
+        <div id="mt5Orders"></div>
+      </div>
       <div class="card">
         <b>Telegram</b>
         <div class="muted small" id="tgState"></div>
@@ -125,6 +152,10 @@
     </div>
     <label for="aLabels">Labels</label>
     <input id="aLabels" class="mono" value="1=BUY,-1=SELL">
+    <div class="grid2">
+      <label class="check" style="margin-top:22px"><input type="checkbox" id="aMt5"> Execute on MT5</label>
+      <div><label for="aMt5Lots">MT5 lots (empty = default)</label><input id="aMt5Lots" type="number" min="0.01" step="0.01"></div>
+    </div>
     <label for="aTemplate">Message (empty = default format)</label>
     <textarea id="aTemplate" rows="2"></textarea>
     <div class="err-text" id="aError"></div>

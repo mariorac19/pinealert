@@ -136,3 +136,12 @@ main { overflow: hidden; }
 .in-row .dot-mod { width: 7px; height: 7px; border-radius: 50%; background: transparent; }
 .in-row .dot-mod.on { background: var(--warn); }
 @media (max-width: 600px) { .in-row { grid-template-columns: 1fr 110px 10px; } }
+
+/* cTrader / MT5 cards */
+a.btn { display: inline-block; text-decoration: none; border: 1px solid var(--line); background: var(--panel-2); border-radius: 6px; padding: 6px 11px; color: var(--text); }
+a.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+label.check { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 12px; margin: 8px 0 0; cursor: pointer; }
+label.check input { width: auto; accent-color: var(--accent); }
+.key { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+details summary { cursor: pointer; color: var(--muted); }
+details ol { padding-left: 18px; margin: 6px 0 0; }
